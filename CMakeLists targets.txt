@@ -31,7 +31,9 @@
 # easily by specifying the folder containing sources,
 # and running CMake to generate the makefile.
 
-set(PROGRAM_NAME program)
+set(CMAKE_VERSION_USED 2.8)
+
+set(PROGRAM_NAME computer_program)
 set(SOURCE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
 
 #compiler flag settings
@@ -44,13 +46,16 @@ set(STATIC_COMPILE true)
 set(OPTIMIZE_BUILD_FLAGS true) #will only be used for release.  :)
 set(64_BIT_BUILD true)
 
+#wxWidgets settings:
+set(USING_WXWIDGETS_LIB false)
+
 #boost settings
 set(USING_BOOST_LIBRARY false)
 set(BOOST_LIB_COMPONENTS system) #change these library filenames if necessary
 set(BOOST_LIB_COMPONENTS_LITERAL libboost_system.a)
 
 #unittest++
-set(USING_UNITTESTPP_LIBS false)
+set(USING_UNITTESTPP_LIBS true)
 
 #Additional Libraries
 set(USING_ADDITIONAL_LIBS false)
@@ -142,6 +147,21 @@ macro(add_boost targ)
         message("FATAL ERROR: boost library not found!")
     endif()
 endmacro(add_boost)
+
+#adds wxWidgets library to target
+macro(add_wxwidgets_lib targ)
+    if(USING_WXWIDGETS_LIB)
+        set(wxWidgets_USE_LIBS)
+        find_package(wxWidgets)
+        if(NOT wxWidgets_FOUND)
+            message("wxWidgets libraries could not be located!!")
+        else()
+            #target_include_directories(${targ} PRIVATE "${wxWidgets_USE_FILE}")
+            include("${wxWidgets_USE_FILE}")
+            target_link_libraries(${targ} ${wxWidgets_LIBRARIES})
+        endif()
+    endif()
+endmacro(add_wxwidgets_lib)
 
 #adds additional libraries
 macro(add_additional_libs targ libs)
@@ -253,6 +273,10 @@ macro(create_target_build targ)
     if(USING_NCURSES_LIBRARY)
         add_ncurses(${targ})
     endif()
+    
+    if(USING_WXWIDGETS_LIB)
+        add_wxwidgets_lib(${targ})
+    endif()
 
     if(USING_BOOST_LIBRARY)
         add_boost(${targ})
@@ -260,7 +284,7 @@ macro(create_target_build targ)
 endmacro(create_target_build)
 
 #this is where we start configuration:
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION ${CMAKE_VERSION_USED})
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
 project(${PROGRAM_NAME})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
