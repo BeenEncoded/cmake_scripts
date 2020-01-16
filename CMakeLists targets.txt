@@ -31,15 +31,15 @@
 # easily by specifying the folder containing sources,
 # and running CMake to generate the makefile.
 
-set(CMAKE_VERSION_USED 2.8)
+set(CMAKE_VERSION_USED 3.3.0)
 
 set(PROGRAM_NAME computer_program)
 set(SOURCE_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
 
 #compiler flag settings
-set(INCLUDE_ALL false) #if true, then it recursively includes all cpp and hpp files
-set(ENABLE_MULTITHREADING false)
-set(CPLUSPLUS_11 false)
+set(INCLUDE_ALL true) #if true, then it recursively includes all cpp and hpp files
+set(ENABLE_MULTITHREADING true)
+set(CPLUSPLUS_17 true)
 set(C_11 false)
 set(STRICT_COMPILE true)
 set(STATIC_COMPILE true)
@@ -55,7 +55,7 @@ set(BOOST_LIB_COMPONENTS system) #change these library filenames if necessary
 set(BOOST_LIB_COMPONENTS_LITERAL libboost_system.a)
 
 #unittest++
-set(USING_UNITTESTPP_LIBS true)
+set(USING_UNITTESTPP_LIBS false)
 
 #Additional Libraries
 set(USING_ADDITIONAL_LIBS false)
@@ -93,10 +93,10 @@ macro(target_add_preproc_defs targ defs)
     endif()
 endmacro(target_add_preproc_defs)
 
-#sets c++11
-macro(use_cplusplus11 targ)
-    target_add_definitions(${targ} "-std=c++11")
-endmacro(use_cplusplus11)
+#sets c++17
+macro(use_cplusplus17 targ)
+    target_add_definitions(${targ} "-std=c++17")
+endmacro(use_cplusplus17)
 
 #sets c99
 macro(use_c99 targ)
@@ -159,6 +159,9 @@ macro(add_wxwidgets_lib targ)
             #target_include_directories(${targ} PRIVATE "${wxWidgets_USE_FILE}")
             include("${wxWidgets_USE_FILE}")
             target_link_libraries(${targ} ${wxWidgets_LIBRARIES})
+            
+            #on linux using GTK:
+            target_link_libraries(${targ} libwx_gtk2u_richtext-3.0.so)
         endif()
     endif()
 endmacro(add_wxwidgets_lib)
@@ -240,8 +243,8 @@ macro(add_comp_flags targ)
         set_static(${targ})
     endif()
 
-    if(CPLUSPLUS_11)
-        use_cplusplus11(${targ})
+    if(CPLUSPLUS_17)
+        use_cplusplus17(${targ})
     endif()
 
     if(64_BIT_BUILD)
